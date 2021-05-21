@@ -108,7 +108,7 @@ fmovies_df
 # %%
 ## Preprocessing movie script
 
-split_pattern = r"[^a-zA-Z]((?:EXT|EXTERIOR|INT|INTERIOR)[^a-zA-Z][^\\]+?\n)" # r"(EXT[^\\]+?\n)"
+split_pattern = r"[^a-zA-Z]((?:EXT|EXTERIOR|INT|INTERIOR)[^a-zA-Z][^\\]+?\n)"
 
 for root, _, files in os.walk(input_dir):
     # for file_name in files:
@@ -181,43 +181,29 @@ for block in script_text_ind:
 
     old_block = block
 
-# %%
-
 len(paragraphs)
 
 # %%
 
 paragraphs_df = pd.DataFrame(paragraphs, columns = ['heading', 'text'])
 
-# %%
-
 print(paragraphs_df[paragraphs_df['heading'] == 'NA'])
-paragraphs_df[paragraphs_df['text'] == 'NA']
-
-
-# %%
+print(paragraphs_df[paragraphs_df['text'] == 'NA'])
 
 paragraphs_df
 
 # %%
 
 pg = paragraphs_df.iloc[90,1]
-
-# %%
-
-# re.split(pg, 
-
-# %%
-
-pg = r'FINNEGAN\n (annoyed)\n The safety...the safety... \n \n He flicks the safety on and off.\n \n FINNEGAN\n Got it?\n \n TRILLIAN\n (pissed)\n Hey! I didn\'t have to come back.\n \n FINNEGAN\n Yeah you did...\n \n TRILLIAN\n (defensive)\n Right... You have a boat.\n \n FINNEGAN\n Boat or no boat... You woulda come\n back anyway. You\'re that kind of\n gal.\n \n TRILLIAN\n Oh yeah? What kind is that?\n \n FINNEGAN\n The "come back" kind.\n \n TRILLIAN\n How do you know that?\n \n FINNEGAN\n Takes one to know one.\n \n Finnegan\'s small smile makes Trillian acutely uncomfortable.\n \n V.O.\n HEELLPP!!\n \n CUT TO:\n \n 9'
-
-# %%
-
-pg_list = sent_tokenize(pg)
-
-# %%
-
 pg
+
+# %%
+
+char_pattern = r"\n?\s*([A-Z]+|(?:[A-Z]+\.){1,3})\s*\n"
+
+char_split = re.split(char_pattern, pg)
+
+char_split
 
 # %%
 
@@ -225,3 +211,6 @@ pg
 # 2, Regex split full text for \n CHAR \n 
     # This won't Deal with the descriptive sentences coming after dialogues
     # But for that we can apply passive / active NLP stuff
+# Maybe delete text (between parentheses)
+
+# %%
