@@ -100,7 +100,7 @@ target/
 .ipynb_checkpoints
 
 # Pickle files
-.pkl
+*.pkl
 
 # IPython
 profile_default/
