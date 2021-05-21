@@ -1,0 +1,93 @@
+I picked the topic of investigating the Bechdel test on movies over time, which I would be working alone on (i6263130). The Bechdel test is a measure of the representation of women in fiction. In order for a movie to pass the Bechdel test it has to feature two women talking to each other about something other than men. This text mining task requires identifying characters and their gender, understanding relations between them and the topic of speech, and dealing with coreference.
+I plan to visualize the results in numbers on a timeline to show the evolution of female representation in movies according to the most famous test about it.
+As for the dataset, I plan to scrape the script of a significant amount of movies off the Internet Movie Script Database (imsdb.com). In case I cannot find a workaround of the site using recaptchas, I plan to use a precompiled dataset for a list of movies (e.g. the Movie Scripts dataset from Kaggle, which contains over 2800 movie scripts - https://www.kaggle.com/parthplc/movie-scripts)
+
+
+preprocess movie title / year - create distribution
+
+Text mining movie scripts
+
+Getting the data
+	- Scrape all url from the page
+	- Use regexp to extract movie script urls
+	- Crawl the urls and download whole html
+	- Filter out elements, keep only plain script text
+	- Remove html tags
+
+
+Data preprocessing
+	- Chunking text into scenes
+		- using INT / INTERIOR / EXT / EXTERIOR
+	- Then split actions and dialogs into characters - who does / says the line
+		- NER?
+	- Distinguish dialogs from actions - actions have third person verbs
+		- POS tagger?
+	- Check if data is valid - scenes per movie, scenes per minute - distribution, filter out
+
+Cornell movie scripts (https://www.kaggle.com/Cornell-University/movie-dialog-corpus)
+	- only until 2011
+	- lots of preprocessing: split into lines, paired to characters and their gender
+
+Scrape SimplyScripts.com
+	- Very few from 2010's
+	- Seems easy to scrape
+	- Also metadata
+
+
+
+
+Statistics
+	- But don't overdo - only after scraping's done (who knows how many remain)
+	- Download scripts
+
+	- Distinct movie rows by imdb_id - keep only first script
+
+
+Download scripts
+	- Download if pdf - e.g. The Addams Family
+	- Download if txt - e.g. The Adventune
+	- Download if rtf - e.g. Alien vs. Predator
+	- Scrape if HTM/HTML
+	- Disregard if 404 not found - e.g. The Aeronauts
+
+
+72 in total that doesn't have an extension as ending
+pdf
+htm
+html
+beingcharliekaufman -> download -> pdf
+txt
+rtf
+18 sfy -> HTML
+8 beingcharliekaufman -> PDF
+4 google drive -> X
+11 scribd -> X
+other 20 are either dropbox / zip / php or doesn't say
+
+either save name as index
+	either save file name to dictionary with index
+	save file to dummy_dir -> only file in directory so easy to find -> rename it, move it to final_dir
+
+
+tagtog - annotate entities for themselves
+
+NN for coreference resolution?
+
+neural coreference by huggingface?
+
+coreNLP - easy with nltk libarary
+tricky part: starting coreNLP server - Arthur! - for coref ARthur hasn't tried it out yet
+
+
+WWWWW questions?
+
+
+Challenges
+	Get sentences into chunks of actions / dialogues
+		For that deal with passive / active sentences
+	Determine gender of speaking character
+	Who / what they are talking about
+		Deal with coreference - hopefully across multiple sentences - but not multiple scenes!
+		Other than that... maybe topic recognition?
+	Who they are talking with?
+		Maybe next person in conversation
