@@ -115,7 +115,7 @@ for root, _, files in os.walk(input_dir):
     
     script_sentence_list = []
 
-    file_name = '518.txt'
+    file_name = '0.txt'
     
     file_path = os.path.join(root, file_name)
 
@@ -130,14 +130,6 @@ for root, _, files in os.walk(input_dir):
         script_text = ' '.join(script_text_list)
         script_text = re.sub('\x0c|\t','',script_text)
         script_text_split = re.split(split_pattern, script_text)
-        # sentence_list = sent_tokenize(a)
-        # for rows in f:
-        #     # sentence_list = sent_tokenize(rows)
-        #     print(sentence_list)
-        #     if sentence_list == []:
-        #         sentence_list = [r'\n']
-        #     script_sentence_str = r'\n'.join(sentence_list)
-        #     # script_sentence_list = sentence_list + script_sentence_list
 
 script_text_split = filter(None.__ne__, script_text_split)
 script_text_split = list(script_text_split)
@@ -158,11 +150,9 @@ for i in script_text_split:
     else:
         script_text_ind.append((i, 'text'))
 
-len(script_text_ind)
-
 # %%
 
-script_text_ind[0]
+script_text_ind[1]
 
 # %%
 
@@ -194,7 +184,7 @@ paragraphs_df
 
 # %%
 
-pg = paragraphs_df.iloc[90,1]
+pg = paragraphs_df.iloc[110,1]
 pg
 
 # %%
@@ -213,4 +203,43 @@ char_split
     # But for that we can apply passive / active NLP stuff
 # Maybe delete text (between parentheses)
 
+# First NER -> then split by that
+# Because script recognizes lots of stuff as people just because shitty layout
+
 # %%
+## Make it a bit easy
+
+pg = 'A Pakistani counter clerk takes one look at the mob entering his store and bolts for the rear. A customer exits as Nico herds his captives in. Hands on the counter! NICO: Three men do it; the fourth is slow.'
+pg = '" \n A Pakistani counter clerk takes one look at the mob enter-\n ing his store and bolts for the rear. A customer exits\n as Nico herds his captives in.\n \n Hands on the counter!\n \n NICO\n \n Three men do it; the fourth is slow.'
+
+# %%
+
+import spacy
+
+nlp = spacy.load("en_core_web_sm")
+
+# %%
+
+doc = nlp(pg)
+
+# %%
+
+a_list = []
+
+for token in doc[0:100]:
+    a = [token.text, token.lemma_, token.pos_, token.tag_, token.dep_]
+    a_list.append(a)
+pd.DataFrame(a_list, columns = ['text','lemma','pos','tag','dep'])
+
+# %%
+
+from spacy import displacy
+
+displacy.render(doc, style="dep")
+
+# %%
+
+# So first want to use NER to recognize names in text
+# From experiments:
+    # it seems like messy textual data doesn't really allow for proper name recognition
+    # So maybe first clean data of \n's, then apply NER, collect names, and apply re.split to only words appearing in set
