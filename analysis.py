@@ -16,15 +16,15 @@ from nltk.tokenize import word_tokenize, sent_tokenize, wordpunct_tokenize
 # %%
 ## Reading pickles
 
-open_file = open('movies_df.pkl', "rb")
+open_file = open('pickles/movies_df.pkl', "rb")
 movies_df = pickle.load(open_file)
 
-open_file = open('log_df.pkl', "rb")
+open_file = open('pickles/log_df.pkl', "rb")
 log_df = pickle.load(open_file)
 
 # %%
 
-input_dir = '/home/bghorvath/Documents/pyprojects/irtm_project/processed/'
+input_dir = 'data/processed/'
 
 # %%
 ## Looking at character count of the scripts
@@ -76,14 +76,14 @@ fmovies_df = fmovies_df[['imdb_id','imdb_title','imdb_year','len']]
 # %%
 ## Writing filtered movies_df to pickle
 
-# open_file = open('fmovies_df.pkl', 'wb')
+# open_file = open('pickles/fmovies_df.pkl', 'wb')
 # pickle.dump(merged, open_file)
 # open_file.close()
 
 # %%
 ## Reading filtered movies_df from pickle
 
-open_file = open('fmovies_df.pkl', "rb")
+open_file = open('pickles/fmovies_df.pkl', "rb")
 fmovies_df = pickle.load(open_file)
 
 # %%

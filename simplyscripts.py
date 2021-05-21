@@ -22,7 +22,7 @@ def get_page_links():
 
     link_all_scripts = 'https://www.simplyscripts.com/movie-screenplays.html'
 
-    driver_path = "./chromedriver"
+    driver_path = "other/chromedriver"
     driver = webdriver.Chrome(executable_path=driver_path)
 
     driver.get(link_all_scripts)
@@ -98,7 +98,7 @@ movies_df = pd.DataFrame(movies, columns=['movie_name','script_link','imdb_link'
 
 print("The script scraped %a movies in %d seconds" % (len(movies), time.time() - start_time))
 
-open_file = open('movies_df.pkl', 'wb')
+open_file = open('pickles/movies_df.pkl', 'wb')
 pickle.dump(movies_df, open_file)
 open_file.close()
 
