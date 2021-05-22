@@ -88,6 +88,7 @@ Challenges
 	Determine gender of speaking character
 	Who / what they are talking about
 		Deal with coreference - hopefully across multiple sentences - but not multiple scenes!
+		Deal with normalization
 		Other than that... maybe topic recognition?
 	Who they are talking with?
 		Maybe next person in conversation
