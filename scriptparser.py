@@ -22,14 +22,14 @@ from selenium.webdriver.support import expected_conditions as EC
 # %%
 ## Reading pickle
 
-open_file = open('movies_df.pkl', "rb")
+open_file = open('pickles/movies_df.pkl', "rb")
 movies_df = pickle.load(open_file)
 
 # %%
 ## Parser parameters
 
-temp_dir = '/home/bghorvath/Documents/pyprojects/irtm_project/temp/'
-scripts_dir = '/home/bghorvath/Documents/pyprojects/irtm_project/scripts/'
+temp_dir = 'data/temp/'
+scripts_dir = 'data/scripts/'
 
 parser_formats = ['html','.htm']
 download_formats = ['.txt','.pdf','.rtf','.doc']
@@ -92,7 +92,7 @@ def downloads_complete(driver):
 # %%
 def selenium_dl(i, script_link):
     
-    driver_path = "./chromedriver"
+    driver_path = "other/chromedriver"
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs', {
     "download.default_directory": temp_dir,
@@ -129,7 +129,7 @@ def selenium_dl(i, script_link):
 
 def parser(i, script_link):
 
-    driver_path = "./chromedriver"
+    driver_path = "other/chromedriver"
     driver = webdriver.Chrome(executable_path=driver_path)
 
     try:
@@ -223,59 +223,10 @@ for i, script_link in enumerate(movies_df['script_link']): # range(2150,2176):
             log.append([i, script_link, 'other', 'left_out'])
 
 log_df = pd.DataFrame(log, columns = ['i','script_link','method','result'])
-log_df
 
 # %%
-## Clear downloads
+## Writing log to pickles
 
-# clear_dir(temp_dir)
-# clear_dir(scripts_dir)
-
-# open_file = open('log_df.pkl', 'wb')
-# pickle.dump(log_df, open_file)
-# open_file.close()
-
-open_file = open('log_df.pkl', "rb")
-log_df = pickle.load(open_file)
-
-# %%
-
-log_success = log_df[log_df['result']=='success']['i'].values
-
-# %%
-
-processed_dir = '/home/bghorvath/Documents/pyprojects/irtm_project/processed/'
-
-
-txtdir = set()
-
-for root, _, files in os.walk(processed_dir):
-    for f in files:
-        
-        file_path = os.path.join(root,f)
-
-        p = Path(file_path)
-        file_suffix = p.suffix.lower()
-        file_stem = p.stem
-
-        txtdir.add(int(file_stem))
-
-# %%
-
-not_in = set()
-
-for i in log_success:
-    if i not in txtdir:
-        not_in.add(i)
-
-# %%
-
-a = []
-
-for i, script_link in enumerate(movies_df['script_link']): # range(2150,2176):
-
-    if i not in txtdir:
-        a.append(i)
-
-print(len(a))
-# %%
+open_file = open('log_df.pkl', 'wb')
+pickle.dump(log_df, open_file)
+open_file.close()

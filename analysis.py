@@ -16,7 +16,7 @@ from nltk.tokenize import word_tokenize, sent_tokenize, wordpunct_tokenize
 # %%
 ## Reading pickles
 
-open_file = open('pickles/movies_df.pkl', "rb")
+open_file = open('pickles/imdb_movies_df.pkl', "rb")
 movies_df = pickle.load(open_file)
 
 open_file = open('pickles/log_df.pkl', "rb")
@@ -111,13 +111,16 @@ fmovies_df
 split_pattern = r"[^a-zA-Z]((?:EXT|EXTERIOR|INT|INTERIOR)[^a-zA-Z][^\\]+?\n)"
 
 for root, _, files in os.walk(input_dir):
-    # for file_name in files:
+
+# for movie in fmovies_df.index:
+    
+#     file_name = str(movie)+'.txt'
     
     script_sentence_list = []
 
-    file_name = '0.txt'
+    file_name = '4.txt'
     
-    file_path = os.path.join(root, file_name)
+    file_path = os.path.join(input_dir, file_name)
 
     script_text_list = []
 
@@ -138,7 +141,7 @@ len(script_text_split)
 
 # %%
 
-script_text_split[246]
+script_text_split
 
 # %%
 
@@ -184,7 +187,7 @@ paragraphs_df
 
 # %%
 
-pg = paragraphs_df.iloc[110,1]
+pg = paragraphs_df.iloc[130,1]
 pg
 
 # %%
@@ -209,8 +212,7 @@ char_split
 # %%
 ## Make it a bit easy
 
-pg = 'A Pakistani counter clerk takes one look at the mob entering his store and bolts for the rear. A customer exits as Nico herds his captives in. Hands on the counter! NICO: Three men do it; the fourth is slow.'
-pg = '" \n A Pakistani counter clerk takes one look at the mob enter-\n ing his store and bolts for the rear. A customer exits\n as Nico herds his captives in.\n \n Hands on the counter!\n \n NICO\n \n Three men do it; the fourth is slow.'
+pg = " \n A Pakistani counter clerk takes one look at the mob enter-\n ing his store and bolts for the rear. A customer exits\n as Nico herds his captives in.\n \n Hands on the counter!\n \n NICO\n \n Three men do it; the fourth is slow."
 
 # %%
 

@@ -21,14 +21,11 @@ from pdfminer.pdfpage import PDFPage
 # %%
 ## Reading pickles and initializing directories
 
-open_file = open('movies_df.pkl', "rb")
+open_file = open('pickles/movies_df.pkl', "rb")
 movies_df = pickle.load(open_file)
 
-open_file = open('log_df.pkl', "rb")
-log_df = pickle.load(open_file)
-
-scripts_dir = '/home/bghorvath/Documents/pyprojects/irtm_project/scripts/'
-output_dir = '/home/bghorvath/Documents/pyprojects/irtm_project/processed/'
+scripts_dir = 'data/scripts/'
+output_dir = 'data/processed/'
 
 # %%
 ## Converting rtf to txt
