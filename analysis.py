@@ -16,64 +16,7 @@ from nltk.tokenize import word_tokenize, sent_tokenize, wordpunct_tokenize
 # %%
 ## Reading pickles
 
-open_file = open('pickles/imdb_movies_df.pkl', "rb")
-movies_df = pickle.load(open_file)
-
 input_dir = 'data/processed/'
-
-# %%
-## Looking at character count of the scripts
-
-txtlen = {}
-
-for root, _, files in os.walk(input_dir):
-    for f in files:
-        
-        file_path = os.path.join(root,f)
-
-        p = Path(file_path)
-        file_suffix = p.suffix.lower()
-        file_stem = p.stem
-
-        if file_suffix == '.txt':
-            with open(file_path, 'r', encoding = 'utf8', errors='ignore') as f:
-                text = f.read().replace(" ","")
-                txtlen[file_stem] = len(text)
-
-txtlen_df = pd.DataFrame.from_dict(txtlen, orient='index', columns = ['len'])
-
-# %%
-## Filtering to only scripts that contain at least 10000 characters
-
-txtlen_df_filtered = txtlen_df[txtlen_df.len > 10000]
-
-plt.hist(txtlen_df_filtered['len'].values, bins = 100)
-
-# %%
-## Filtering to 90% mean
-
-txtlen_df_90 = txtlen_df_filtered[(txtlen_df_filtered.len < txtlen_df_filtered.len.quantile(0.95)) \
-    & (txtlen_df_filtered.len > txtlen_df_filtered.len.quantile(0.05))]
-
-plt.hist(txtlen_df_90['len'].values, bins = 100)
-
-# %%
-## Merging movies_df with txtlen_df_90
-
-txtlen_df_90['i'] = txtlen_df_90.index.astype(int)
-movies_df['i'] = movies_df.index.astype(int)
-fmovies_df = pd.DataFrame.merge(movies_df, txtlen_df_90, how = 'inner', left_on = 'i', right_on = 'i')
-
-fmovies_df = fmovies_df.set_index('i')
-
-fmovies_df = fmovies_df[['imdb_id','imdb_title','imdb_year','imdb_runtime','imdb_genre','len']]
-
-# %%
-## Writing filtered movies_df to pickle
-
-# open_file = open('pickles/fmovies_df.pkl', 'wb')
-# pickle.dump(fmovies_df, open_file)
-# open_file.close()
 
 # %%
 ## Reading filtered movies_df from pickle
@@ -82,28 +25,19 @@ open_file = open('pickles/fmovies_df.pkl', "rb")
 fmovies_df = pickle.load(open_file)
 
 # %%
+## Looking at movies per year
 
 plt.hist(fmovies_df['imdb_year'].sort_values(), bins = 100)
-
-# %%
 
 with pd.option_context('display.max_rows', None, 'display.max_columns', None):
     print(fmovies_df['imdb_year'].value_counts().sort_index())
 
 # %%
-
-# Option A: instead of sent_tokenize, first concat rows that don't have \n between them, and sent_tokenize only after that
-# Option B: if [] -> [\n], and after sent_tokenize, this way the list elements can be concat based on not having \n between them
-# Option C: look for 
-
-# %%
 ## Counting # of paragraphs per movie
-
-#for i, movie in enumerate(fmovies_df.values):
 
 def get_paragraph_count(i):
 
-    split_pattern = r"[^a-zA-Z]((?:EXT|EXTERIOR|INT|INTERIOR)[^a-zA-Z][^\\]+?\n)"
+    split_pattern = r"(?:[^a-zA-Z]((?:EXT|EXTERIOR|INT|INTERIOR)[^a-zA-Z][^\\]+?\n))|(?:\n[^a-zA-Z]*?((?:Ext|Exterior|Int|Interior)[^a-zA-Z][^\\]{0,40}?\n))"
     
     file_name = str(i)+'.txt'
 
@@ -119,7 +53,7 @@ def get_paragraph_count(i):
             elif len(re.findall(r"\w", row)) > 1:
                 script_text_list.append(row)
         script_text = ' '.join(script_text_list)
-        script_text = re.sub('\x0c|\t','',script_text)
+        script_text = re.sub('\x0c|\t|\x81|\x80|\x8e|\x85|\x92|\x93|\x94|\x97|\xa0','',script_text)
         script_text_split = re.split(split_pattern, script_text)
 
     script_text_split = filter(None.__ne__, script_text_split)
@@ -130,7 +64,7 @@ def get_paragraph_count(i):
     script_text_ind = []
 
     for i in script_text_split:
-        if re.search(r"^(INT|EXT).+\n$", i):
+        if re.search(r"^(INT|EXT).+\n$", i, re.IGNORECASE):
             script_text_ind.append((i, 'heading'))
         else:
             script_text_ind.append((i, 'text'))
@@ -152,6 +86,9 @@ def get_paragraph_count(i):
 
         old_block = block
     
+    paragraphs_df = pd.DataFrame(paragraphs, columns = ['heading', 'text'])
+
+    
     return len(paragraphs)
 
 # %%
@@ -161,7 +98,7 @@ fmovies_df['paragraph_count'] = fmovies_df.apply(lambda row: get_paragraph_count
 # %%
 ## Preprocessing movie script
 
-split_pattern = r"[^a-zA-Z]((?:EXT|EXTERIOR|INT|INTERIOR)[^a-zA-Z][^\\]+?\n)"
+split_pattern = r"(?:[^a-zA-Z]((?:EXT|EXTERIOR|INT|INTERIOR)[^a-zA-Z][^\\]+?\n))|(?:\n[^a-zA-Z]*?((?:Ext|Exterior|Int|Interior)[^a-zA-Z][^\\]{0,40}?\n))"
 
 for root, _, files in os.walk(input_dir):
 
@@ -171,7 +108,7 @@ for root, _, files in os.walk(input_dir):
     
     script_sentence_list = []
 
-    file_name = '4.txt'
+    file_name = '95.txt'
     
     file_path = os.path.join(input_dir, file_name)
 
@@ -184,7 +121,7 @@ for root, _, files in os.walk(input_dir):
             elif len(re.findall(r"\w", row)) > 1:
                 script_text_list.append(row)
         script_text = ' '.join(script_text_list)
-        script_text = re.sub('\x0c|\t','',script_text)
+        script_text = re.sub('\x0c|\t|\x81|\x80|\x8e|\x85|\x92|\x93|\x94|\x97|\xa0','',script_text)
         script_text_split = re.split(split_pattern, script_text)
 
 script_text_split = filter(None.__ne__, script_text_split)
@@ -197,12 +134,12 @@ len(script_text_split)
 script_text_ind = []
 
 for i in script_text_split:
-    if re.search(r"^(INT|EXT).+\n$", i):
+    if re.search(r"^(INT|EXT).*\n$", i, re.IGNORECASE):
         script_text_ind.append((i, 'heading'))
     else:
         script_text_ind.append((i, 'text'))
 
-script_text_ind[1]
+# script_text_ind[1]
 
 # %%
 
@@ -234,7 +171,7 @@ paragraphs_df
 
 # %%
 
-pg = paragraphs_df.iloc[130,1]
+pg = paragraphs_df.iloc[30,1]
 pg
 
 # %%
@@ -257,28 +194,46 @@ char_split
 # Because script recognizes lots of stuff as people just because shitty layout
 
 # %%
-## Make it a bit easy
-
-pg = " \n A Pakistani counter clerk takes one look at the mob enter-\n ing his store and bolts for the rear. A customer exits\n as Nico herds his captives in.\n \n Hands on the counter!\n \n NICO\n \n Three men do it; the fourth is slow."
-
-# %%
+## NER for recognizing persons
 
 import spacy
 
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_trf")
+
+# %%
+## Clean paragraph input text
+
+char_pattern = r"(\n?\s*(?:[A-Z]+|(?:[A-Z]+\.){1,3}))\s*\n"
+
+pg = "Stacy's mom is coming over the weekend to see her daughter."
+
+pg_clean = re.sub(char_pattern,r"\1:",pg)
+pg_clean = re.sub(r"[^a-zA-Z0-9.\-,;:!?()'\"\s]","",pg_clean)
+pg_clean = re.sub(r"\s+"," ", pg_clean)
+
+for f in re.findall("([A-Z]{2,})", pg_clean):
+    pg_clean = pg_clean.replace(f, f.title())
+
+pg_clean
 
 # %%
 
-doc = nlp(pg)
+doc = nlp(pg_clean)
 
 # %%
 
-a_list = []
+ner_persons = set()
 
-for token in doc[0:100]:
-    a = [token.text, token.lemma_, token.pos_, token.tag_, token.dep_]
-    a_list.append(a)
-pd.DataFrame(a_list, columns = ['text','lemma','pos','tag','dep'])
+for ent in doc.ents:
+    print(ent.text)
+    if ent.label_ == 'PERSON' and ent.text not in ner_persons:
+        ner_persons.add(ent.lemma_)
+
+ner_persons
+# for token in doc:
+#     a = [token.text, token.lemma_, token.pos_, token.tag_, token.dep_]
+#     a_list.append(a)
+
 
 # %%
 
@@ -294,3 +249,4 @@ displacy.render(doc, style="dep")
     # So maybe first clean data of \n's, then apply NER, collect names, and apply re.split to only words appearing in set
 
 # %%
+

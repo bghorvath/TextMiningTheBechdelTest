@@ -3,6 +3,7 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import re
 import os
 import sys
@@ -131,4 +132,58 @@ for root, _, files in os.walk(scripts_dir):
             shutil.move(file_path, new_path)
 
 # %%
+## Creating filtered movies dataframe
 
+# %%
+
+## Looking at character count of the scripts
+txtlen = {}
+
+for root, _, files in os.walk(output_dir):
+    for f in files:
+        
+        file_path = os.path.join(root,f)
+
+        p = Path(file_path)
+        file_suffix = p.suffix.lower()
+        file_stem = p.stem
+
+        if file_suffix == '.txt':
+            with open(file_path, 'r', encoding = 'utf8', errors='ignore') as f:
+                text = f.read().replace(" ","")
+                txtlen[file_stem] = len(text)
+
+txtlen_df = pd.DataFrame.from_dict(txtlen, orient='index', columns = ['len'])
+
+# %%
+## Filtering to only scripts that contain at least 10000 characters
+
+txtlen_df_filtered = txtlen_df[txtlen_df.len > 10000]
+
+plt.hist(txtlen_df_filtered['len'].values, bins = 100)
+
+# %%
+## Filtering to 90% mean
+
+txtlen_df_90 = txtlen_df_filtered[(txtlen_df_filtered.len < txtlen_df_filtered.len.quantile(0.95)) \
+    & (txtlen_df_filtered.len > txtlen_df_filtered.len.quantile(0.05))]
+
+plt.hist(txtlen_df_90['len'].values, bins = 100)
+
+# %%
+## Merging movies_df with txtlen_df_90
+
+txtlen_df_90['i'] = txtlen_df_90.index.astype(int)
+movies_df['i'] = movies_df.index.astype(int)
+fmovies_df = pd.DataFrame.merge(movies_df, txtlen_df_90, how = 'inner', left_on = 'i', right_on = 'i')
+
+fmovies_df = fmovies_df.set_index('i')
+
+fmovies_df = fmovies_df[['imdb_id','imdb_title','imdb_year','imdb_runtime','imdb_genre','len']]
+
+# %%
+## Writing filtered movies_df to pickle
+
+open_file = open('pickles/fmovies_df.pkl', 'wb')
+pickle.dump(fmovies_df, open_file)
+open_file.close()
