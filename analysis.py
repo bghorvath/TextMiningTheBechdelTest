@@ -19,11 +19,6 @@ from nltk.tokenize import word_tokenize, sent_tokenize, wordpunct_tokenize
 open_file = open('pickles/imdb_movies_df.pkl', "rb")
 movies_df = pickle.load(open_file)
 
-open_file = open('pickles/log_df.pkl', "rb")
-log_df = pickle.load(open_file)
-
-# %%
-
 input_dir = 'data/processed/'
 
 # %%
@@ -71,13 +66,13 @@ fmovies_df = pd.DataFrame.merge(movies_df, txtlen_df_90, how = 'inner', left_on 
 
 fmovies_df = fmovies_df.set_index('i')
 
-fmovies_df = fmovies_df[['imdb_id','imdb_title','imdb_year','len']]
+fmovies_df = fmovies_df[['imdb_id','imdb_title','imdb_year','imdb_runtime','imdb_genre','len']]
 
 # %%
 ## Writing filtered movies_df to pickle
 
 # open_file = open('pickles/fmovies_df.pkl', 'wb')
-# pickle.dump(merged, open_file)
+# pickle.dump(fmovies_df, open_file)
 # open_file.close()
 
 # %%
@@ -97,13 +92,71 @@ with pd.option_context('display.max_rows', None, 'display.max_columns', None):
 
 # %%
 
-fmovies_df
-
-# %%
-
 # Option A: instead of sent_tokenize, first concat rows that don't have \n between them, and sent_tokenize only after that
 # Option B: if [] -> [\n], and after sent_tokenize, this way the list elements can be concat based on not having \n between them
 # Option C: look for 
+
+# %%
+## Counting # of paragraphs per movie
+
+#for i, movie in enumerate(fmovies_df.values):
+
+def get_paragraph_count(i):
+
+    split_pattern = r"[^a-zA-Z]((?:EXT|EXTERIOR|INT|INTERIOR)[^a-zA-Z][^\\]+?\n)"
+    
+    file_name = str(i)+'.txt'
+
+    file_path = os.path.join(input_dir, file_name)
+
+    ## Reading in file and splitting to paragraphs
+
+    script_text_list = []
+    with open(file_path, 'r', encoding = 'ISO-8859-1') as f:
+        for row in f:
+            if row == '\n':
+                script_text_list.append(row)
+            elif len(re.findall(r"\w", row)) > 1:
+                script_text_list.append(row)
+        script_text = ' '.join(script_text_list)
+        script_text = re.sub('\x0c|\t','',script_text)
+        script_text_split = re.split(split_pattern, script_text)
+
+    script_text_split = filter(None.__ne__, script_text_split)
+    script_text_split = list(script_text_split)
+
+    ## Identifying headers and text blocks
+
+    script_text_ind = []
+
+    for i in script_text_split:
+        if re.search(r"^(INT|EXT).+\n$", i):
+            script_text_ind.append((i, 'heading'))
+        else:
+            script_text_ind.append((i, 'text'))
+    
+    ## Connecting headers and text blocks
+
+    old_block = ('init', 'text')
+
+    paragraphs = []
+
+    for block in script_text_ind:
+
+        if block[1] == 'text' and old_block[1] == 'heading':
+            paragraphs.append((old_block[0], block[0]))
+        elif block[1] == 'text' and old_block[1] == 'text':
+            paragraphs.append(('NA', block[0]))
+        elif block[1] == 'heading' and old_block[1] == 'heading':
+            paragraphs.append((old_block[0], 'NA'))
+
+        old_block = block
+    
+    return len(paragraphs)
+
+# %%
+
+fmovies_df['paragraph_count'] = fmovies_df.apply(lambda row: get_paragraph_count(row.name), axis = 1)
 
 # %%
 ## Preprocessing movie script
@@ -141,10 +194,6 @@ len(script_text_split)
 
 # %%
 
-script_text_split
-
-# %%
-
 script_text_ind = []
 
 for i in script_text_split:
@@ -152,8 +201,6 @@ for i in script_text_split:
         script_text_ind.append((i, 'heading'))
     else:
         script_text_ind.append((i, 'text'))
-
-# %%
 
 script_text_ind[1]
 
@@ -245,3 +292,5 @@ displacy.render(doc, style="dep")
 # From experiments:
     # it seems like messy textual data doesn't really allow for proper name recognition
     # So maybe first clean data of \n's, then apply NER, collect names, and apply re.split to only words appearing in set
+
+# %%

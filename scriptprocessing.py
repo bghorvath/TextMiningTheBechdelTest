@@ -118,10 +118,13 @@ for root, _, files in os.walk(scripts_dir):
     for f in files:
         
         file_path = os.path.join(root, f)
-        new_path = os.path.join(output_dir, f)
 
         p = Path(file_path)
+        file_stem = p.stem
         file_suffix = p.suffix.lower()
+
+        ## Needed to rename .TXT files to .txt
+        new_path = os.path.join(output_dir, file_stem+'.txt')
 
         if file_suffix == '.txt':
 
