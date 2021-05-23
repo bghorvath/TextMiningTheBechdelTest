@@ -178,12 +178,3 @@ with open('data/movie_dialogues.txt', 'w') as f:
         movie_dialogue = get_dialogues(movie_index)
         f.write(json.dumps(movie_dialogue))
         f.write('\n')
-
-# %%
-
-with open('data/movie_dialogues.txt', 'r') as f:
-    movies_json = json.load(f)
-
-# %%
-
-line = movies_json[0]['paragraphs'][1]['dialogues'][0]['line']
