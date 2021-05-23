@@ -124,12 +124,12 @@ def get_dialogues(movie_index):
                 clean_line = re.sub(r"[^a-zA-Z0-9.\-,;:!?()'\"\s]", "", line)
                 clean_line = re.sub(r"\s+"," ", clean_line)
                 clean_line = re.sub(r"^\s","", clean_line)
+                clean_line = re.sub(r"\(.*?\)","",clean_line) # NOTE added between parentheses
                 
                 for f in re.findall("([A-Z]{2,})", clean_line): # NOTE added .title()
                     clean_line = clean_line.replace(f, f.title())
 
                 clean_char_split_ind.append((clean_line, 'text'))
-
 
 
         # Match characters with dialogue boxes
@@ -170,10 +170,14 @@ for movie_i, row in enumerate(fmovies_df.to_numpy()):
     movies_json.append(get_dialogues(movie_index))
 
 # %%
-## Writing dialogues to txt
+## Writing json to txt as stream
 
-# with open('data/movie_dialogues.txt', 'w') as outfile:
-#     json.dump(movies_json, outfile)
+with open('data/movie_dialogues.txt', 'w') as f:  
+    for movie_i, row in enumerate(fmovies_df.to_numpy()):
+        movie_index = int(fmovies_df.iloc[movie_i,:].name)
+        movie_dialogue = get_dialogues(movie_index)
+        f.write(json.dumps(movie_dialogue))
+        f.write('\n')
 
 # %%
 
