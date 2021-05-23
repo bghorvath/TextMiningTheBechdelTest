@@ -13,6 +13,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 from nltk.tokenize import word_tokenize, sent_tokenize, wordpunct_tokenize
+
 from polyglot.text import Text
 
 # %%
