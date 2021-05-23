@@ -124,7 +124,13 @@ def get_dialogues(movie_index):
                 clean_line = re.sub(r"[^a-zA-Z0-9.\-,;:!?()'\"\s]", "", line)
                 clean_line = re.sub(r"\s+"," ", clean_line)
                 clean_line = re.sub(r"^\s","", clean_line)
+                
+                for f in re.findall("([A-Z]{2,})", clean_line): # NOTE added .title()
+                    clean_line = clean_line.replace(f, f.title())
+
                 clean_char_split_ind.append((clean_line, 'text'))
+
+
 
         # Match characters with dialogue boxes
         old_block = ('init', 'text')
@@ -166,8 +172,8 @@ for movie_i, row in enumerate(fmovies_df.to_numpy()):
 # %%
 ## Writing dialogues to txt
 
-with open('data/movie_dialogues.txt', 'w') as outfile:
-    json.dump(movies_json, outfile)
+# with open('data/movie_dialogues.txt', 'w') as outfile:
+#     json.dump(movies_json, outfile)
 
 # %%
 
@@ -176,10 +182,4 @@ with open('data/movie_dialogues.txt', 'r') as f:
 
 # %%
 
-movies_json[10]['paragraphs'][1]['dialogues'][0]['line']
-
-# %%
-
-movies_json[10]['movie_id']
-# %%
-
+line = movies_json[0]['paragraphs'][1]['dialogues'][0]['line']
