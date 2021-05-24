@@ -26,26 +26,18 @@ open_file = open('pickles/fmovies_df.pkl', "rb")
 fmovies_df = pickle.load(open_file)
 
 # %%
+## Load example movie_json
 
-from dialogues import get_dialogues
-
-# %%
-
-movies_json = []
-
-for movie_i, row in enumerate(fmovies_df.to_numpy()):
-    
-    if movie_i > 10:
-        break
-    movie_index = int(fmovies_df.iloc[movie_i,:].name)
-
-    movies_json.append(get_dialogues(movie_index))
-
-# %%
+with open('data/movie_dialogues.txt', 'r') as f:
+    for i, line in enumerate(f):
+        if i == 9:
+            movie_json = json.loads(line)
+        if i > 9:
+            break
 
 lines = []
 
-for line in movies_json[9]['paragraphs'][45]['dialogues']:
+for line in movie_json['paragraphs'][45]['dialogues']:
     lines.append(line['line'])
 
 # %%
@@ -55,35 +47,48 @@ clean_lines = []
 for line in lines: # NOTE Parentheses solved in function, now it's only tripledot
     line_token = sent_tokenize(line)
     for sent_token in line_token:
-        clean_line = re.sub(r"[^\w\s']","",sent_token)
+        clean_line = re.sub(r"[^\w\s']", "", sent_token)
         clean_lines.append(clean_line)
 
 # %%
 ## NER for recognizing persons
 
 import spacy
+import neuralcoref
 
-nlp = spacy.load("en_core_web_trf")
+nlp = spacy.load("en_core_web_sm")
 
 # %%
 
+neuralcoref.add_to_pipe(nlp)
+
+# %%
+
+# TODO maybe try with more than 1 sentence? Does that even work? Should I keep punct?
+
+a_set = set()
+
+clean_line = clean_lines[0]
+print(clean_line)
+
 doc = nlp(clean_line)
+
+for token in doc:
+    print([token.text, token.tag_])
+    # for ent in doc.ents:
+    #     if ent.label_ == 'PERSON':
+    #         print(ent.text)
 
 # %%
 
 for ent in doc.ents:
-    print(ent.text)
-    if ent.label_ == 'PERSON':
-        ner_persons.add(ent.lemma_)
-
-# for token in doc:
-#     if token.tag_ == 'NNP':
-#         a_set.add(token.text)
-# print(a_set)
-
+    print([ent, ent._.coref_cluster])
 
 # %%
 
+
+
+# %%
 from spacy import displacy
 
 displacy.render(doc, style="dep")
@@ -136,8 +141,6 @@ with open('data/movie_dialogues.txt', 'r') as f:
 
 # %%
 
-# TODO import function isn't working, but may not need it anymore because of json
-
 # TODO test spacy on NER - already build up pipeline for who says what to whom?
 
 # ? do I finetune spacy NER?
@@ -150,3 +153,6 @@ with open('data/movie_dialogues.txt', 'r') as f:
     # * instead of sentences, look for whole conversation
     # * maybe even split to conversations instead of dialogues?
     # * do topic modeling for whole conversation
+
+
+# TODO maybe concat lines that have no character

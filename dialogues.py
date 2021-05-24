@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from nltk.tokenize import word_tokenize, sent_tokenize, wordpunct_tokenize
 
 # %%
-## Reading pickles
+## Init input folder
 
 input_dir = 'data/processed/'
 
@@ -45,10 +45,12 @@ def get_dialogues(movie_index):
         for row in f:
             if row == '\n':
                 script_text_list.append(row)
-            elif len(re.findall(r"[a-zA-Z]", row)) > 1:
+            elif len(re.findall(r"[a-zA-Z]", row)) > 0: # ! MODIFIED THIS TOO
                 script_text_list.append(row)
         script_text = ' '.join(script_text_list)
+        script_text = re.sub(r"\(.*?\)","",script_text)
         script_text = re.sub('\x0c|\t|\x81|\x80|\x8e|\x85|\x92|\x93|\x94|\x97|\xa0','',script_text)
+        
         script_text_split = re.split(split_pattern, script_text)
 
     script_text_split = filter(None.__ne__, script_text_split)
@@ -84,8 +86,9 @@ def get_dialogues(movie_index):
     ## Going through paragraphs, collecting person names
 
     # Pattern to collect characters with a line
-    char_pattern = r"[^a-zA-Z0-9 \n](?:[ ]|\n)*\n[ ]*((?:[A-Z']+(?:[ ][A-Z]+)?)|(?:[A-Z]+[. ]){1,3})\s*\n"
-
+    # char_pattern = r"[^a-zA-Z0-9 \n](?:[ ]|\n)*\n[ ]*((?:[A-Z']+(?:[. ]*?[A-Z]+)?)|(?:[A-Z]+[. ]){1,3})\s*\n"
+    char_pattern = r"[^a-zA-Z0-9 \n](?:[ ]|\n)*\n[ ]*((?:[A-Z']+(?:[. ]*?[A-Z]+)?)|(?:[A-Z]+[. ]){1,3})[ ]*\n\s*[A-Z'\"]"
+    # ! ADDED ' and " TO PATTERN
     # Compile character set for the movie
 
     char_set = set()
@@ -102,12 +105,29 @@ def get_dialogues(movie_index):
         # Split paragraph into dialogue boxes
         dialogues = []
 
-        char_split = re.split(char_pattern, pg[1])
-        
+        char_line_pattern = r"[^a-zA-Z0-9 \n](?:[ ]|\n)*\n[ ]*((?:[A-Z']+(?:[. ]*?[A-Z]+)?)|(?:[A-Z]+[. ]){1,3})[ ]*\n\s*([A-Z'\"])"
+
+        char_split = re.split(char_line_pattern, pg[1])
+
+        multiletter = []
+        lasti = ''
+        for i in char_split:
+            if len(lasti) == 1:
+                i = lasti+i
+            lasti = i
+            if len(i) > 1:
+                multiletter.append(i)
+
+        line_split = []
+
+        for element in multiletter: # ! added new split
+            split = re.split(r"\n\s*?\n", element)
+            line_split = line_split + split
+
         char_split_ind = []
 
         # Assign char label to character denotations and text to dialogue boxes
-        for row in char_split:
+        for row in line_split: # ! modified input
             if row in char_set:
                 char_split_ind.append((row, 'char'))
             else:
@@ -122,14 +142,16 @@ def get_dialogues(movie_index):
             if row[1] == 'text':
                 line = row[0]
                 clean_line = re.sub(r"[^a-zA-Z0-9.\-,;:!?()'\"\s]", "", line)
+                # clean_line = re.sub(r"\(.*?\)","",clean_line) # NOTE modified order
                 clean_line = re.sub(r"\s+"," ", clean_line)
-                clean_line = re.sub(r"^\s","", clean_line)
-                clean_line = re.sub(r"\(.*?\)","",clean_line) # NOTE added between parentheses
+                clean_line = re.sub(r"\.+",".",clean_line)
+                clean_line = re.sub(r"^\s","", clean_line) # ! REMOVED FROM HERE
                 
                 for f in re.findall("([A-Z]{2,})", clean_line): # NOTE added .title()
                     clean_line = clean_line.replace(f, f.title())
-
-                clean_char_split_ind.append((clean_line, 'text'))
+                
+                if clean_line != '': # NOTE added if to filter empty lines
+                    clean_char_split_ind.append((clean_line, 'text'))
 
 
         # Match characters with dialogue boxes
@@ -157,24 +179,29 @@ def get_dialogues(movie_index):
     return {"movie_id": movie_index, "paragraphs": paragraphs_json}
 
 # %%
-## Loop through the df to run the script
-
-movies_json = []
-
-for movie_i, row in enumerate(fmovies_df.to_numpy()):
-    
-    if movie_i > 0:
-        break
-    movie_index = int(fmovies_df.iloc[movie_i,:].name)
-
-    movies_json.append(get_dialogues(movie_index))
-
-# %%
 ## Writing json to txt as stream
 
+start_time = time.time()
 with open('data/movie_dialogues.txt', 'w') as f:  
     for movie_i, row in enumerate(fmovies_df.to_numpy()):
+        # if movie_i > 10:
+        #     break
         movie_index = int(fmovies_df.iloc[movie_i,:].name)
         movie_dialogue = get_dialogues(movie_index)
         f.write(json.dumps(movie_dialogue))
         f.write('\n')
+print(f"Finished in {time.time()-start_time} seconds")
+
+# %%
+
+with open('data/movie_dialogues.txt', 'r') as f:
+    for i, line in enumerate(f):
+        if i == 9:
+            movie_json = json.loads(line)
+        if i > 9:
+            break
+
+movie_json['paragraphs'][46]['dialogues']
+
+# %%
+
