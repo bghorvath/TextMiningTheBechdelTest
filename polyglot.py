@@ -51,8 +51,8 @@ for line in movies_json[9]['paragraphs'][45]['dialogues']:
 
 clean_lines = []
 
-for line in lines: # NOTE Parentheses solved in function, now it's only tripledot
-    line_token = sent_tokenize(line) # TODO try another sentence tokenizer
+for line in lines: # NOTE Parentheses and tripledot solved in function
+    line_token = sent_tokenize(line) # TODO try another sentence tokenizer - it kinda works now
     for sent_token in line_token:
         clean_line = re.sub(r"[^\w\s']","",sent_token)
         clean_lines.append(clean_line)

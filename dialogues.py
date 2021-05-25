@@ -45,10 +45,10 @@ def get_dialogues(movie_index):
         for row in f:
             if row == '\n':
                 script_text_list.append(row)
-            elif len(re.findall(r"[a-zA-Z]", row)) > 0: # ! MODIFIED THIS TOO
+            elif len(re.findall(r"[a-zA-Z]", row)) > 0: # NOTE tweaked pattern
                 script_text_list.append(row)
         script_text = ' '.join(script_text_list)
-        script_text = re.sub(r"\(.*?\)","",script_text)
+        script_text = re.sub(r"\(.*?\)","",script_text) # NOTE added this here
         script_text = re.sub('\x0c|\t|\x81|\x80|\x8e|\x85|\x92|\x93|\x94|\x97|\xa0','',script_text)
         
         script_text_split = re.split(split_pattern, script_text)
@@ -88,7 +88,8 @@ def get_dialogues(movie_index):
     # Pattern to collect characters with a line
     # char_pattern = r"[^a-zA-Z0-9 \n](?:[ ]|\n)*\n[ ]*((?:[A-Z']+(?:[. ]*?[A-Z]+)?)|(?:[A-Z]+[. ]){1,3})\s*\n"
     char_pattern = r"[^a-zA-Z0-9 \n](?:[ ]|\n)*\n[ ]*((?:[A-Z']+(?:[. ]*?[A-Z]+)?)|(?:[A-Z]+[. ]){1,3})[ ]*\n\s*[A-Z'\"]"
-    # ! ADDED ' and " TO PATTERN
+    # NOTE added ' and " to pattern
+
     # Compile character set for the movie
 
     char_set = set()
@@ -109,7 +110,7 @@ def get_dialogues(movie_index):
 
         char_split = re.split(char_line_pattern, pg[1])
 
-        multiletter = []
+        multiletter = [] # NOTE added: prev split takes away first letter of next sentence, this gives it back
         lasti = ''
         for i in char_split:
             if len(lasti) == 1:
@@ -120,14 +121,14 @@ def get_dialogues(movie_index):
 
         line_split = []
 
-        for element in multiletter: # ! added new split
+        for element in multiletter: # NOTE added new split
             split = re.split(r"\n\s*?\n", element)
             line_split = line_split + split
 
         char_split_ind = []
 
         # Assign char label to character denotations and text to dialogue boxes
-        for row in line_split: # ! modified input
+        for row in line_split: # NOTE fixed input
             if row in char_set:
                 char_split_ind.append((row, 'char'))
             else:
@@ -142,10 +143,10 @@ def get_dialogues(movie_index):
             if row[1] == 'text':
                 line = row[0]
                 clean_line = re.sub(r"[^a-zA-Z0-9.\-,;:!?()'\"\s]", "", line)
-                # clean_line = re.sub(r"\(.*?\)","",clean_line) # NOTE modified order
+                # clean_line = re.sub(r"\(.*?\)","",clean_line) # NOTE removed from here, now it's in the beginning
                 clean_line = re.sub(r"\s+"," ", clean_line)
                 clean_line = re.sub(r"\.+",".",clean_line)
-                clean_line = re.sub(r"^\s","", clean_line) # ! REMOVED FROM HERE
+                clean_line = re.sub(r"^\s","", clean_line) 
                 
                 for f in re.findall("([A-Z]{2,})", clean_line): # NOTE added .title()
                     clean_line = clean_line.replace(f, f.title())

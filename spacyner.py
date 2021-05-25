@@ -32,13 +32,38 @@ with open('data/movie_dialogues.txt', 'r') as f:
     for i, line in enumerate(f):
         if i == 9:
             movie_json = json.loads(line)
-        if i > 9:
-            break
 
-lines = []
+# lines = []
 
-for line in movie_json['paragraphs'][45]['dialogues']:
-    lines.append(line['line'])
+# for i, line in enumerate(movie_json['paragraphs'][46]['dialogues']):
+#     if line['character'] != 'NA':
+#         line['line'] = sent_tokenize(line['line'])
+#         for sent_token in line['line']:
+#             sent_token = re.sub(r"[^\w\s']", "", sent_token)
+
+# %%
+
+# NOTE 2 CHARACTER TALKS TO EACH OTHER CONSECUTIVE LINES 
+
+doublelines = set()
+
+lines = movie_json['paragraphs'][45]['dialogues']
+
+for i, line in enumerate(lines):
+    try:
+        if line['character'] != 'NA' and lines[i+1]['character'] != 'NA':
+            doublelines.add((line['character'], lines[i+1]['character'], line['line']))
+    except:
+        pass
+    if line['character'] != 'NA' and lines[i-1]['character'] != 'NA':
+        doublelines.add((line['character'], lines[i-1]['character'], line['line']))
+
+
+# TODO COREFERENCE -> BASED ON THAT - GET GENDER OF CHARACTERS THAT HAVE GENDER
+# TODO ALSO NEED COREFERENCE RESOLUTION TO TOPIC OF SPEECH
+
+# %%
+[i for i in movie_json['paragraphs'][46]['dialogues'] if i['character'] != 'NA']
 
 # %%
 
@@ -47,20 +72,15 @@ clean_lines = []
 for line in lines: # NOTE Parentheses solved in function, now it's only tripledot
     line_token = sent_tokenize(line)
     for sent_token in line_token:
-        clean_line = re.sub(r"[^\w\s']", "", sent_token)
+        sent_token = re.sub(r"[^\w\s']", "", sent_token)
         clean_lines.append(clean_line)
 
 # %%
 ## NER for recognizing persons
 
 import spacy
-import neuralcoref
 
 nlp = spacy.load("en_core_web_sm")
-
-# %%
-
-neuralcoref.add_to_pipe(nlp)
 
 # %%
 
@@ -81,12 +101,9 @@ for token in doc:
 
 # %%
 
-for ent in doc.ents:
-    print([ent, ent._.coref_cluster])
+exsent = 'David took off his shirt. Lana read her book.'
 
-# %%
-
-
+doc = nlp(exsent)
 
 # %%
 from spacy import displacy
