@@ -174,8 +174,45 @@ def get_dialogues(movie_index):
                 dialogues.append({'character': char, 'line': text})
 
             old_block = block
+        
+        # Group consecutive dialogues from the same character
 
-        paragraphs_json.append({"header": pg[0], "dialogues": dialogues})
+        # First collect list of chars and lines individually
+        chars = []
+        lines = []
+
+        for i in dialogues:
+            chars.append(i['character'])
+            lines.append(i['line'])
+
+        # Use these to track the change in character and group dialogues together
+        grouped_dialogues = []
+
+        range_flag = 0
+        last_char = ''
+
+        lenchars = len(chars)
+
+        for index, char in enumerate(chars):
+
+            if char != last_char:
+                # set new index, else keep previous
+                range_flag = index
+
+            if index < lenchars-1:
+                # if it's not the last index, look who the next character is
+                next_char = chars[index+1]
+                # if it's different, close off group
+                if char != next_char:
+                    grouped_dialogues.append({'character': char, 'line': " ".join(lines[range_flag:index+1])})
+            else:
+                # if there's no dialogue, close off group no matter what
+                grouped_dialogues.append({'character': char, 'line': " ".join(lines[range_flag:])})
+        
+            # iterate to new last_char
+            last_char = char
+
+        paragraphs_json.append({"header": pg[0], "dialogues": grouped_dialogues})
 
     return {"movie_id": movie_index, "paragraphs": paragraphs_json}
 
