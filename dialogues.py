@@ -12,8 +12,6 @@ import pickle
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-from nltk.tokenize import word_tokenize, sent_tokenize, wordpunct_tokenize
-
 # %%
 ## Init input folder
 
@@ -91,12 +89,11 @@ def get_dialogues(movie_index):
     # NOTE added ' and " to pattern
 
     # Compile character set for the movie
-
     char_set = set()
 
     for pg in paragraphs:
         char_set.update(set(re.findall(char_pattern, pg[1])))
-
+    
     # Init paragraphs_json: it will contain every paragraph heading with dialogue split
     paragraphs_json = []
 
@@ -208,26 +205,29 @@ def get_dialogues(movie_index):
             else:
                 # if there's no dialogue, close off group no matter what
                 grouped_dialogues.append({'character': char, 'line': " ".join(lines[range_flag:])})
-        
+
             # iterate to new last_char
             last_char = char
 
         paragraphs_json.append({"header": pg[0], "dialogues": grouped_dialogues})
 
-    return {"movie_id": movie_index, "paragraphs": paragraphs_json}
+
+    return {"movie_id": movie_index, "paragraphs": paragraphs_json}, {"movie_id": movie_index, "char_set": list(char_set)}
 
 # %%
 ## Writing json to txt as stream
 
 start_time = time.time()
-with open('data/movie_dialogues.txt', 'w') as f:  
+with open('data/movie_dialogues.txt', 'w') as f, open('data/char_sets.txt', 'w') as g:
     for movie_i, row in enumerate(fmovies_df.to_numpy()):
         # if movie_i > 10:
         #     break
         movie_index = int(fmovies_df.iloc[movie_i,:].name)
-        movie_dialogue = get_dialogues(movie_index)
+        movie_dialogue, char_set = get_dialogues(movie_index)
         f.write(json.dumps(movie_dialogue))
         f.write('\n')
+        g.write(json.dumps(char_set))
+        g.write('\n')
 print(f"Finished in {time.time()-start_time} seconds")
 
 # %%
