@@ -6,51 +6,58 @@ import json
 import os
 import sys
 import time
+import pickle
 from pathlib import Path
 
-from collections import Counter
+from nltk import word_tokenize
 
 # %%
 
-coref_dir = 'data/coreference_dicts/'
-
-male = {'he','him','his','himself','boy','man','guy'}
-female = {'she','her','herself','girl','woman','gal'}
+with open('data/gendered_words/gendered_words.json') as f:
+    male_words = set([i['word'] for i in json.load(f) if i['gender'] == 'm'])
 
 # %%
 
-counter = 0
+with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt','r') as g:
+    for i, (movie, coref) in enumerate(zip(f,g)):
+        if i > 0:
+            break
+        
+        movie_json = json.loads(movie)
+        gender_dict = json.loads(row)
+        
+        ## Init male words for certain movie
+        movie_male_words = male_words
+        
+        ## Add movie-specific male words (character names)
+        for key, value in gender_dict['char_genders'].items():
+            if value == 1:
+                key = key.lower()
+                movie_male_words.add(key)
+        
+        woman_conv = []
+        
+        for pg in movie_json['paragraphs']:
+            for i, dialogue in enumerate(pg['dialogues']):
+                if dialogue['gender'] == 0:
+                    try:
+                        if dialogue['character'] != pg['dialogues'][i+1]['character']:
+                            if pg['dialogues'][i+1]['gender'] == 0:
+                                woman_conv.append(pg['dialogues'][i-3:i+3])
+                    except IndexError:
+                        pass
+        
+        for i in woman_conv:
+            print('asd')
 
-with open('data/coreference_dict.txt','w') as f:
-    for root, _, files in os.walk(coref_dir):
-        for file in files:
-            counter = counter + 1
-            file_path = os.path.join(root, file)
-            p = Path(file_path)
-            
-            movie_index = int(p.stem)
 
-            # if counter > 30:
-            #     break
+# %%
 
-            char_genders = {}
+exdial = woman_convo[-1]
 
-            with open(file_path, 'r') as g:
-                for i, line in enumerate(g):
-                    # if i > 100:
-                    #     break
-                    if line != {}:
-                        coref_dict = json.loads(line)
-                        for key, value in coref_dict.items():
-                            try:
-                                char_genders[key] = char_genders[key] + [1 if i in male else 0 for i in value]
-                            except KeyError:
-                                char_genders[key] = [1 if i in male else 0 for i in value]
-                for key, value in char_genders.items():
-                    char_genders[key] = Counter(value).most_common(1)[0][0]
-            f.write(json.dumps({"movie_id": movie_index, "char_genders": char_genders}))
-            f.write('\n')
-            if counter % 10 == 0:
-                print(f"{counter} many movies done")
+# %%
+
+for i in exdial:
+    a = word_tokenize(i['line'])
 
 # %%
