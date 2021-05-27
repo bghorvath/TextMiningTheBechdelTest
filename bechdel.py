@@ -12,6 +12,7 @@ import pickle
 from pathlib import Path
 
 # %%
+## Load dataset of male words
 
 with open('data/gendered_words/gendered_words.json') as f:
     male_words = [i['word'] for i in json.load(f) if i['gender'] == 'm']
@@ -26,15 +27,14 @@ male_words = set(male_words)
 with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt','r') as g, \
     open('data/female_convos.txt','w') as h:
     for movie, coref in zip(f,g):
-        # if i > 10:
-        #     break
+        # Go through each movie
         
         movie_json = json.loads(movie)
         gender_dict = json.loads(coref)
 
         movie_index = movie_json['movie_id']
         
-        ## Init male words for certain movie
+        ## Init male words for the certain movie
         movie_male_words = male_words.copy()
         
         ## Add movie-specific male words (character names)
@@ -43,12 +43,13 @@ with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt
                 key = ' '+str(key).title()+' '
                 movie_male_words.add(key)
         
+        # Init list for the movie to append with female convos
         convo_topic = []
 
         for pg in movie_json['paragraphs']:
+            # Go through each paragraph
 
-            # Init confirmed conv set, so that the script keeps track of lines that have already been marked as male or not
-            # to avoid duplicates
+            # Init confirmed_convos set to keep track of already seen lines to avoid duplicate convos
             confirmed_convos = set()
             
             for i, dialogue in enumerate(pg['dialogues']):
@@ -61,11 +62,13 @@ with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt
                             
                             for j in female_convo:
                                 if j['character'] != 'NA':
+                                    # Clean line and add whitespaces to beginning and end, so the any() function finds the male words
                                     clean_line = re.sub(r"[^\w\s']", "", j['line'])
-                                    conv = ' '+clean_line+' ' # ! .lower()
+                                    conv = ' '+clean_line+' '
                                     
+                                    # Check if line has been already seen, if not, add it
                                     if conv in confirmed_convos:
-                                        topic = 'duplicate'
+                                        topic = 'duplicate' # placeholder value to delete easily
                                         break
                                     else:
                                         confirmed_convos.add(conv)
@@ -86,7 +89,6 @@ with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt
         h.write(female_convos)
         h.write('\n')
 
-
 # %%
 ## Compile bechdel dataframe
 
@@ -95,16 +97,16 @@ bechdel = []
 with open('data/female_convos.txt','r') as f:
     for i, row in enumerate(f):
 
-            female_conv = json.loads(row)
-            
-            movie_index = female_conv['movie_id']
+        female_conv = json.loads(row)
+        
+        movie_index = female_conv['movie_id']
 
-            convs = female_conv['female_convos']
-            
-            male_count = sum([1 for i in convs if i['topic'] == 'male'])
-            not_count = sum([1 for i in convs if i['topic'] == 'not'])
+        convos = female_conv['female_convos']
+        
+        male_count = sum([1 for i in convos if i['topic'] == 'male'])
+        not_count = sum([1 for i in convos if i['topic'] == 'not'])
 
-            bechdel.append([movie_index, male_count, not_count])
+        bechdel.append([movie_index, male_count, not_count])
 
 bechdel_df = pd.DataFrame(bechdel, columns = ['movie_id','male_count','not_count'])
 bechdel_df = bechdel_df.set_index('movie_id', drop=True)
@@ -112,15 +114,9 @@ bechdel_df = bechdel_df.set_index('movie_id', drop=True)
 bechdel_df
 
 # %%
+## Saving into pickle
 
-with open('data/female_convos.txt','r') as f:
-    for i, row in enumerate(f):
-        female_conv = json.loads(row)
-        
-        movie_index = female_conv['movie_id']
-        
-        if movie_index == 2175:
-            for i, conv in enumerate(female_conv['female_convos']):
-                print(conv)
+with open('pickles/bechdel.pkl','wb') as f:
+    pickle.dump(bechdel_df, f)
 
 # %%

@@ -10,6 +10,15 @@ from pathlib import Path
 
 from collections import Counter
 
+# %%
+## Intalling special packages
+
+# !pip install spacy==2.3.5
+# !pip install neuralcoref
+
+# %%
+## Importing SpaCy and neuralcoref, creating pipeline
+
 import spacy
 import neuralcoref
 
