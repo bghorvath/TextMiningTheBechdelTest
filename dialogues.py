@@ -215,7 +215,7 @@ def get_dialogues(movie_index):
     return {"movie_id": movie_index, "paragraphs": paragraphs_json}, {"movie_id": movie_index, "char_set": list(char_set)}
 
 # %%
-## Writing json to txt as stream
+## Writing json to txt as a stream
 
 start_time = time.time()
 with open('data/movie_dialogues.txt', 'w') as f, open('data/char_sets.txt', 'w') as g:
@@ -231,15 +231,3 @@ with open('data/movie_dialogues.txt', 'w') as f, open('data/char_sets.txt', 'w')
 print(f"Finished in {time.time()-start_time} seconds")
 
 # %%
-
-with open('data/movie_dialogues.txt', 'r') as f:
-    for i, line in enumerate(f):
-        if i == 9:
-            movie_json = json.loads(line)
-        if i > 9:
-            break
-
-movie_json['paragraphs'][46]['dialogues']
-
-# %%
-

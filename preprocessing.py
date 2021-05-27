@@ -46,10 +46,8 @@ with open('data/imdb_data/title.basics.tsv') as imdb_data:
 
 def get_imdb_data(imdb_link, columns):
     
-    # imdb_id = 'tt'+re.search(r'\d{7}', imdb_link).group(0)
-
     variables = {}
-
+    
     for i, column in enumerate(columns):
         try:
             if i == 0:

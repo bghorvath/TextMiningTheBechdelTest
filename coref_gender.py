@@ -13,8 +13,8 @@ from collections import Counter
 # %%
 ## Intalling special packages
 
-# !pip install spacy==2.3.5
-# !pip install neuralcoref
+!pip install spacy==2.3.5
+!pip install neuralcoref
 
 # %%
 ## Importing SpaCy and neuralcoref, creating pipeline
@@ -28,7 +28,7 @@ neuralcoref.add_to_pipe(nlp)
 # %%
 ## Get dictionary of gendered words
 
-# !git clone https://github.com/ecmonsen/gendered_words.git data
+!git clone https://github.com/ecmonsen/gendered_words.git data
 
 # %%
 ## Create gender coreference set

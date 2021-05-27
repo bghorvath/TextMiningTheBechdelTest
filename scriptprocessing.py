@@ -22,7 +22,7 @@ from pdfminer.pdfpage import PDFPage
 # %%
 ## Reading pickles and initializing directories
 
-open_file = open('pickles/movies_df.pkl', "rb")
+open_file = open('pickles/imdb_movies_df.pkl', "rb")
 movies_df = pickle.load(open_file)
 
 scripts_dir = 'data/scripts/'
@@ -132,9 +132,6 @@ for root, _, files in os.walk(scripts_dir):
             shutil.move(file_path, new_path)
 
 # %%
-## Creating filtered movies dataframe
-
-# %%
 
 ## Looking at character count of the scripts
 txtlen = {}
@@ -187,3 +184,5 @@ fmovies_df = fmovies_df[['imdb_id','imdb_title','imdb_year','imdb_runtime','imdb
 open_file = open('pickles/fmovies_df.pkl', 'wb')
 pickle.dump(fmovies_df, open_file)
 open_file.close()
+
+# %%

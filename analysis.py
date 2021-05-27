@@ -90,6 +90,12 @@ with open('pickles/analysis.pkl','wb') as f:
 analysis_df.to_csv('data/analysis.csv')
 
 # %%
+## Loading back pickle
+
+with open('pickles/analysis.pkl','rb') as f:
+    analysis_df = pickle.load(f)
+
+# %%
 ## Looking at movies per year
 
 plt.hist(analysis_df['imdb_year'].sort_values(), bins = 100)
