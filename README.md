@@ -2,7 +2,7 @@
 Bechdel test applied to movies from a text mining approach
 
 The data for the project can be downloaded from:
-https://drive.google.com/drive/folders/1konx-AYGYk2zGTdHR97vgQAl_IB2r9Q2?usp=sharing
+https://drive.google.com/drive/folders/1konx-AYGYk2zGTdHR97vgQAl_IB2r9Q2
 
 
 Left out files include:

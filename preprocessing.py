@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 # %%
 ## Downloading imdb data
 
-# !wget https://datasets.imdbws.com/title.basics.tsv.gz -P data/imdb_data
-# !gzip -d imdb_data/title.basics.tsv.gz
+!wget https://datasets.imdbws.com/title.basics.tsv.gz -P data/imdb_data
+!gzip -d imdb_data/title.basics.tsv.gz
 
 # %%
 
