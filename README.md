@@ -1,5 +1,8 @@
-## Investigating representation of women in movies over time using the Bechdel test
-Bechdel test applied to movies from a text mining approach
+## Text mining movie scripts to perform the Bechdel test using spaCy
+
+
+Text mining movie scripts and performing the Bechdel test using spaCy to see how representation of women changed in the past century
+
 
 The data for the project can be downloaded from:
 https://drive.google.com/drive/folders/1konx-AYGYk2zGTdHR97vgQAl_IB2r9Q2
