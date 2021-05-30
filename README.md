@@ -11,7 +11,8 @@ https://drive.google.com/drive/folders/1konx-AYGYk2zGTdHR97vgQAl_IB2r9Q2
 Data files not included:
 - Raw, unprocessed movie scripts (2071 txt/pdf/rtf/doc file, ~1.1GB) (download through .py files) - preprocessed txt files should be enough
 - Imdb dataset (tsv, 674,8MB) (download through .py files) - .pkl file should be enough
-- Gendered_words dataset (download through .py files) - not own work, available on Github
+- Gendered_words dataset (download through .py files) - not own work
+- Neuralcoref library (download through main)
 - Results evaluation from 3 judges
 - CSV files
 

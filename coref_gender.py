@@ -28,7 +28,7 @@ neuralcoref.add_to_pipe(nlp)
 ## Create gender coreference set
 
 with open('data/gendered_words/gendered_words.json') as f:
-    gender_coreference = set([i['word'] for i in json.load(f) if i['gender'] in {'f','m'}])
+    gender_coreference = {i['word'] for i in json.load(f) if i['gender'] in {'f','m'}}
 
 # %%
 ## Init coreference dictionaries folder
@@ -86,8 +86,8 @@ with open('data/movie_dialogues.txt', 'r') as f, open('data/char_sets.txt', 'r')
                 if coreference_dict != {}:
                     for i, v in coreference_dict.items():
                         coreference_dict[i] = list(v)
-                    # Commented out so no accidents happen
-                    # with open(f'data/coreference_dicts/{movie_index}.txt', 'a') as h:
+                    
+                    with open(os.path.join(coref_dir, str(movie_index)+'.txt'), 'a') as h:
                         h.write(json.dumps(coreference_dict))
                         h.write('\n')
         

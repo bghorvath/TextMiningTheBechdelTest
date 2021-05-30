@@ -38,10 +38,8 @@ with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt
         movie_male_words = male_words.copy()
         
         ## Add movie-specific male words (character names)
-        for key, value in gender_dict['char_genders'].items():
-            if value == 1:
-                key = ' '+str(key).title()+' '
-                movie_male_words.add(key)
+        movie_specific_male_words = {' '+str(key).title()+' ' for key, value in gender_dict['char_genders'].items() if value == 1}
+        movie_male_words.update(movie_specific_male_words)
         
         # Init list for the movie to append with female convos
         convo_topic = []
@@ -53,28 +51,40 @@ with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt
             confirmed_convos = set()
             
             for i, dialogue in enumerate(pg['dialogues']):
+                # if current line is female
                 if dialogue['gender'] == 0:
+                    # if last line wasn't from same character
                     if dialogue['character'] != pg['dialogues'][i-1]['character']:
+                        # and that person was also female
                         if pg['dialogues'][i-1]['gender'] == 0:
+                            # Take last 2 and next 2 lines
                             female_convo = pg['dialogues'][i-2:i+3]
                             
+                            # Init topic
                             topic = "not"
                             
+                            # Go through every line
                             for j in female_convo:
+                                # that isn't an action
                                 if j['character'] != 'NA':
                                     # Clean line and add whitespaces to beginning and end, so the any() function finds the male words
                                     clean_line = re.sub(r"[^\w\s']", "", j['line'])
                                     conv = ' '+clean_line+' '
                                     
-                                    # Check if line has been already seen, if not, add it
+                                    # Check if line has already been seen or not
+                                    # If yes - break the loop
                                     if conv in confirmed_convos:
                                         topic = 'duplicate' # placeholder value to delete easily
                                         break
                                     else:
+                                    # If not, add it to seen lines
                                         confirmed_convos.add(conv)
                                     
+                                    # Init topic inside loop
                                     topic = "not"
                                     
+                                    # If any of the male words appear in any of the lines
+                                    # Markt it as a male topic and break loop
                                     if any(phrase in conv for phrase in movie_male_words):
                                         topic = "male"
                                         # print(conv)
