@@ -16,7 +16,7 @@ from collections import Counter
 import spacy
 import neuralcoref
 
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_lg")
 neuralcoref.add_to_pipe(nlp)
 
 # %%
@@ -57,7 +57,7 @@ with open('data/movie_dialogues.txt', 'r') as f, open('data/char_sets.txt', 'r')
 
         movie_index = movie_json['movie_id']
         
-        if movie_index not in movie_indexes:
+        if movie_index == 2175:#not in movie_indexes:
         
             char_json = json.loads(chars)
             

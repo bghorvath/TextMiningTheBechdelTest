@@ -61,7 +61,7 @@ with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt
                             female_convo = pg['dialogues'][i-2:i+3]
                             
                             # Init topic
-                            topic = "not"
+                            male_topic = False
                             
                             # Go through every line
                             for j in female_convo:
@@ -80,17 +80,17 @@ with open('data/movie_gdialogues.txt','r') as f, open('data/coreference_dict.txt
                                     # If not, add it to seen lines
                                         confirmed_convos.add(conv)
                                     
-                                    # Init topic inside loop
-                                    topic = "not"
+                                    # Init male_topic inside loop
+                                    male_topic = False
                                     
                                     # If any of the male words appear in any of the lines
                                     # Markt it as a male topic and break loop
-                                    if any(phrase in conv for phrase in movie_male_words):
-                                        topic = "male"
-                                        # print(conv)
+                                    topic = next((phrase for phrase in movie_male_words if phrase in conv), "")
+                                    if topic != "":
+                                        male_topic = True
                                         break
                             
-                            convo_topic.append({"female_convo": female_convo, "topic": topic})
+                            convo_topic.append({"female_convo": female_convo, "male_topic": male_topic, "topic": topic})
         
         convo_topic = [i for i in convo_topic if i['topic'] != 'duplicate']
         
@@ -113,8 +113,8 @@ with open('data/female_convos.txt','r') as f:
 
         convos = female_conv['female_convos']
         
-        male_count = sum([1 for i in convos if i['topic'] == 'male'])
-        not_count = sum([1 for i in convos if i['topic'] == 'not'])
+        male_count = sum([1 for i in convos if i['male_topic'] == True])
+        not_count = sum([1 for i in convos if i['male_topic'] == False])
 
         bechdel.append([movie_index, male_count, not_count])
 
