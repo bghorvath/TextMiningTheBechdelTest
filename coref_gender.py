@@ -16,7 +16,7 @@ from collections import Counter
 import spacy
 import neuralcoref
 
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load("en_core_web_sm")
 neuralcoref.add_to_pipe(nlp)
 
 # %%
@@ -36,7 +36,7 @@ with open('data/gendered_words/gendered_words.json') as f:
 coref_dir = 'data/coreference_dicts/'
 
 # %%
-## Create character-gender dictionaries for each movie
+## Collect movies that are already done, so loop won't go through them again
 
 movie_indexes = set()
 
@@ -46,6 +46,9 @@ for root, _, files in os.walk(coref_dir):
         p = Path(file_path)
         file_stem = int(p.stem)
         movie_indexes.add(file_stem)
+
+# %%
+## Create character-gender dictionaries for each movie
 
 start_time = time.time()
 with open('data/movie_dialogues.txt', 'r') as f, open('data/char_sets.txt', 'r') as g:
@@ -57,7 +60,8 @@ with open('data/movie_dialogues.txt', 'r') as f, open('data/char_sets.txt', 'r')
 
         movie_index = movie_json['movie_id']
         
-        if movie_index == 2175:#not in movie_indexes:
+        # Only for movies that aren't done yet
+        if movie_index not in movie_indexes:
         
             char_json = json.loads(chars)
             
@@ -67,7 +71,8 @@ with open('data/movie_dialogues.txt', 'r') as f, open('data/char_sets.txt', 'r')
 
                 # Init coreference dict for the movie
                 coreference_dict = {}
-
+                
+                # Go through each paragraph
                 for dialogue in pg['dialogues']:
                     if dialogue['character'] == 'NA':
                         if len(dialogue['line']) < 50000:
