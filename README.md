@@ -1,7 +1,7 @@
-## Text mining movie scripts to perform the Bechdel test using spaCy
+## Movie script information extraction using spaCy to perform the Bechdel test
 
 
-Exploring long-term trend of female representation in movies according to the Bechdel test by text mining movie scripts
+Information extraction from movie scripts to explore long-term trend of female representation in movies according to the Bechdel test
 
 
 The data for the project can be downloaded from:
