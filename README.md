@@ -1,12 +1,12 @@
 ## Text mining movie scripts to perform the Bechdel test using spaCy
 
 
-Text mining movie scripts to explore long-term trend of female representation in movies according to the Bechdel test
+The Bechdel test is a measure of representation of women in fiction. It asks whether a work features at least two female characters who talk to each other about something other than a man.
+Within the framework of this project I used text mining techniques on 1500+ movie scripts that I downloaded/parsed from the internet to explore long-term trend of female representation in movies by performing the test on them.
 
 
 The data for the project can be downloaded from:
 https://drive.google.com/drive/folders/1konx-AYGYk2zGTdHR97vgQAl_IB2r9Q2
-
 
 Data files not included:
 - Raw, unprocessed movie scripts (2071 txt/pdf/rtf/doc file, ~1.1GB) (download through .py files) - preprocessed txt files should be enough
